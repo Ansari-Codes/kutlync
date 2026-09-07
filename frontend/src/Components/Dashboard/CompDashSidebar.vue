@@ -20,14 +20,14 @@ const sidebar: InterfaceDashboardSidebar[] = [
         target: ROUTES.DASHBOARD.LINKS
     },
     {
+        name: 'TrashBox',
+        icon: 'auto_delete',
+        target: ROUTES.DASHBOARD.TRASHBOX
+    },
+    {
         name: 'Analytics',
         icon: 'analytics',
         target: ROUTES.DASHBOARD.ANALYTICS
-    },
-    {
-        name: 'Billing',
-        icon: 'credit_card',
-        target: ROUTES.DASHBOARD.BILLING
     },
     {
         name: 'Settings',

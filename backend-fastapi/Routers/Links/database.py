@@ -41,6 +41,18 @@ async def expire_user_links(user_id: int) -> None:
         await expire_link(link["id"])
 
 
+async def cleanup_deleted_links(user_id: int) -> None:
+    links = await Model_Link.select(columns="id, status, updated_at", where={"user_id": user_id})
+    cutoff = datetime.now(timezone.utc).timestamp() - 5 * 24 * 60 * 60
+    for link in links:
+        updated = datetime.fromisoformat(link["updated_at"].replace(" ", "T").replace("Z", "+00:00")).replace(tzinfo=timezone.utc)
+        if updated.timestamp() <= cutoff:
+            if link["status"] == "expired":
+                await Model_Link.update({"status": "deleted", "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}, {"id": link["id"]})
+            elif link["status"] == "deleted":
+                await Model_Link.delete({"id": link["id"]})
+
+
 async def get_link(link_id: int, user_id: int | None = None) -> dict[str, Any] | None:
     where = {"id": link_id}
     if user_id is not None:
@@ -68,6 +80,7 @@ async def is_link_secured(identifier: str, by: "id"|"slug" = "slug") -> bool | N
 
 
 async def list_links(user_id: int) -> list[dict[str, Any]]:
+    await cleanup_deleted_links(user_id)
     await expire_user_links(user_id)
     links = await Model_Link.select(columns=RAW_LINK_FIELDS, where={"user_id": user_id})
     return [public_link(link) for link in links]  # type: ignore[misc]

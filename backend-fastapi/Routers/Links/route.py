@@ -60,6 +60,9 @@ async def links(
         return unauthorized(response)
     
     links = await list_links(user_id)
+
+    if filters.status != "deleted":
+        links = [link for link in links if link.get("status") != "deleted"]
     
     if filters.q:
         query_lower = filters.q.lower()
@@ -173,6 +176,34 @@ async def delete_link(link_id: int, response: Response, user_id: int | None = De
         response.status_code = status.HTTP_404_NOT_FOUND
         return api_response(False, "Link not found", None)
     return api_response(True, "Link deleted successfully", None)
+
+
+@links_router.patch("/api/dashboard/links/{link_id}/restore")
+async def restore_link(link_id: int, response: Response, user_id: int | None = Depends(current_user_id)):
+    if not user_id:
+        return unauthorized(response)
+    existing = await get_raw_link(link_id, user_id)
+    if not existing or existing["status"] != "deleted":
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return api_response(False, "Deleted link not found", None)
+    expires_at = None
+    if existing["max_age_minutes"] is not None:
+        created = datetime.fromisoformat(existing["created_at"].replace(" ", "T").replace("Z", "+00:00")).replace(tzinfo=None)
+        expires_at = created.timestamp() + existing["max_age_minutes"] * 60
+    restored_status = "active" if expires_at is None or expires_at > datetime.now().timestamp() else "expired"
+    await Model_Link.update({"status": restored_status, "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, {"id": link_id, "user_id": user_id})
+    return api_response(True, "Link restored successfully", await get_link(link_id, user_id))
+
+
+@links_router.delete("/api/dashboard/links/{link_id}/permanent")
+async def permanently_delete_link(link_id: int, response: Response, user_id: int | None = Depends(current_user_id)):
+    if not user_id:
+        return unauthorized(response)
+    changed = await Model_Link.delete({"id": link_id, "user_id": user_id})
+    if not changed:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return api_response(False, "Deleted link not found", None)
+    return api_response(True, "Link permanently deleted", None)
 
 
 @links_router.get("/api/visit/is_secured")

@@ -14,7 +14,10 @@ interface FilterValues {
 
 const props = defineProps<{
     initialFilters?: Partial<FilterValues>
+    mode?: 'links' | 'trash'
 }>()
+
+const mode = props.mode ?? 'links'
 
 const emit = defineEmits<{
     apply: [filters: {
@@ -54,8 +57,7 @@ const sortOptions = [
 const statusOptions = [
     { label: 'All', value: '' },
     { label: 'Active', value: 'active' },
-    { label: 'Expired', value: 'expired' },
-    { label: 'Deleted', value: 'deleted' }
+    { label: 'Expired', value: 'expired' }
 ]
 
 // Limit options
@@ -114,7 +116,7 @@ const resetFilters = () => {
                     @click="form.ascen = !form.ascen" :title="form.ascen ? 'Ascending' : 'Descending'" />
             </div>
             <KSelect v-model="form.limit" label="Limit" :options="limitOptions" />
-            <KSelect v-model="form.status" label="Status" :options="statusOptions" />
+            <KSelect v-if="mode === 'links'" v-model="form.status" label="Status" :options="statusOptions" />
         </div>
 
         <div class="mt-4 flex justify-evenly items-center gap-2">

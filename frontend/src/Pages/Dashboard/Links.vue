@@ -69,7 +69,7 @@ const now = ref(Date.now())
 let ageTimer: ReturnType<typeof setInterval> | undefined
 
 const displayLinks = computed(() => {
-    return links.value.map(link => ({
+    return links.value.filter(link => link.status !== 'deleted').map(link => ({
         id: link.id,
         link_name: link.link_name,
         link_target: link.destination_link,
@@ -112,16 +112,16 @@ function getAgeLeft(created_at: string, max_age_minutes?: number | null): string
 
 function updateUrlWithFilters() {
     const query: Record<string, string> = {}
-    
+
     // Build query params from currentFilters
     const filters = currentFilters.value
-    
+
     if (filters.q) query.q = filters.q
     if (filters.ascen !== undefined && filters.ascen !== true) query.ascen = 'false'
     if (filters.sort_by && filters.sort_by !== 'updated_at') query.sort_by = filters.sort_by
     if (filters.status) query.status = filters.status
     if (filters.limit && filters.limit > 0) query.limit = String(filters.limit)
-    
+
     router.replace({ query })
 }
 
@@ -135,7 +135,7 @@ function applyFilters(filters: any) {
         status: filters.status as InterfaceLinkFilters['status'],
         limit: filters.limit || -1
     }
-    
+
     filter_open.value = false
     updateUrlWithFilters()
     loadLinks()
@@ -258,12 +258,10 @@ async function handleCopyLink(id: number | string) {
         notify('Failed to copy link', 'error')
     }
 }
-
 async function handleDelete(id: number | string) {
     try {
         await serveDeleteLink(String(id))
-        const link = links.value.find(item => item.id === id)
-        if (link) link.status = 'deleted'
+        links.value = links.value.filter(item => item.id !== id)
         notify('Link deleted successfully', 'success')
     } catch (error) {
         notify(String(error), 'error')
@@ -274,7 +272,10 @@ async function handleDelete(id: number | string) {
 async function loadLinks() {
     try {
         isLoading.value = true
-        const filters: InterfaceLinkFilters = { ...currentFilters.value }        
+        const filters: InterfaceLinkFilters = {
+            ...currentFilters.value,
+            status: currentFilters.value.status === 'deleted' ? null : currentFilters.value.status
+        }
         const response = await serveLinks(filters)
         links.value = response.data
     } catch (e) {
@@ -292,7 +293,7 @@ watch(() => route.query, () => {
         status: (route.query.status as InterfaceLinkFilters['status']) || null,
         limit: route.query.limit ? Number(route.query.limit) : -1
     }
-    
+
     if (JSON.stringify(newFilters) !== JSON.stringify(currentFilters.value)) {
         currentFilters.value = newFilters
         loadLinks()
@@ -320,25 +321,15 @@ onUnmounted(() => {
     <CompDashPanel title="Links" tagline="Manage your links">
         <template #header>
             <div class="relative">
-                <CompLinkToolbar 
-                    class="mb-2" 
-                    @open-new="openNewLink" 
-                    @refresh="refreshLinks" 
-                    @search="search" 
-                    @filter="toggleFilter" 
-                />
-                <CompLinkFilterMenu 
-                    v-if="filter_open" 
-                    :initial-filters="{
-                        q: currentFilters.q || '',
-                        ascen: currentFilters.ascen,
-                        sort_by: currentFilters.sort_by,
-                        status: currentFilters.status || '',
-                        limit: String(currentFilters.limit || -1)
-                    }"
-                    @apply="applyFilters" 
-                    @close="filter_open = false"
-                    @reset="() => {
+                <CompLinkToolbar class="mb-2" @open-new="openNewLink" @refresh="refreshLinks" @search="search"
+                    @filter="toggleFilter" />
+                <CompLinkFilterMenu v-if="filter_open" mode="links" :initial-filters="{
+                    q: currentFilters.q || '',
+                    ascen: currentFilters.ascen,
+                    sort_by: currentFilters.sort_by,
+                    status: currentFilters.status || '',
+                    limit: String(currentFilters.limit || -1)
+                }" @apply="applyFilters" @close="filter_open = false" @reset="() => {
                         currentFilters = {
                             q: '',
                             ascen: true,
@@ -348,71 +339,56 @@ onUnmounted(() => {
                         }
                         updateUrlWithFilters()
                         loadLinks()
-                    }"
-                />
+                    }" />
             </div>
         </template>
 
-        <KDialog v-model="add_edit_form_open" mode="elevated" :title="add_edit_form_mode === 'edit' ? 'Edit link' : 'Create link'" @close="closeForm">
-            <CompLinkAddForm
-                :mode="add_edit_form_mode"
-                :link="selectedLink"
-                @handle-new="handleAddEditFormSubmit"
-                @close-form="closeForm"
-            />
+        <KDialog v-model="add_edit_form_open" mode="elevated"
+            :title="add_edit_form_mode === 'edit' ? 'Edit link' : 'Create link'" @close="closeForm">
+            <CompLinkAddForm :mode="add_edit_form_mode" :link="selectedLink" @handle-new="handleAddEditFormSubmit"
+                @close-form="closeForm" />
         </KDialog>
 
-        <KDialog :model-value="Boolean(viewingLink)" mode="elevated" title="Link details" @update:model-value="viewingLink = null" @close="viewingLink = null">
+        <KDialog :model-value="Boolean(viewingLink)" mode="elevated" title="Link details"
+            @update:model-value="viewingLink = null" @close="viewingLink = null">
             <CompLinkViewer v-if="viewingLink" :link="viewingLink" @close="viewingLink = null" />
         </KDialog>
 
-        <KDataTable 
-            :rows="displayLinks" 
-            :columns="[
-                'actions',
-                'link_name',
-                'link_target',
-                'slug',
-                'visits',
-                'age_left',
-                'created_at',
-                'status'
-            ]" 
-            :slot-columns="[
+        <KDataTable :rows="displayLinks" :columns="[
+            'actions',
+            'link_name',
+            'link_target',
+            'slug',
+            'visits',
+            'age_left',
+            'created_at',
+            'status'
+        ]" :slot-columns="[
                 'actions',
                 'status'
-            ]"
-            :loading="isLoading"
-        >
+            ]" :loading="isLoading">
             <template #actions="{ row }">
                 <div class="relative flex items-center">
                     <KButton icon="more_vert" variant="quiet" @click="openActions(getRowId(row), $event)" />
-                    
+
                     <div v-if="selectedActionLinkID === row.id" class="fixed z-50" :style="{
                         top: `${actionMenuPosition.top}px`,
                         left: `${actionMenuPosition.left}px`
                     }">
-                        <CompLinkActionsMenu 
-                            @close="selectedActionLinkID = null" 
-                            @view="handleView(getRowId(row))"
-                            @edit="handleEdit(getRowId(row))"
-                            @copy_link="handleCopyLink(getRowId(row))" 
-                            @delete="handleDelete(getRowId(row))" 
-                        />
+                        <CompLinkActionsMenu @close="selectedActionLinkID = null" @view="handleView(getRowId(row))"
+                            @edit="handleEdit(getRowId(row))" @copy_link="handleCopyLink(getRowId(row))"
+                            @delete="handleDelete(getRowId(row))" />
                     </div>
                 </div>
             </template>
 
             <template #status="{ value }">
-                <KBadge 
-                    :label="String(value)" 
-                    :tone="value === 'active'
-                        ? 'success'
-                        : value === 'expired'
+                <KBadge :label="String(value)" :tone="value === 'active'
+                    ? 'success'
+                    : value === 'expired'
                         ? 'neutral'
                         : 'warning'
-                    " 
-                />
+                    " />
             </template>
         </KDataTable>
     </CompDashPanel>

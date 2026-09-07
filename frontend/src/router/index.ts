@@ -35,10 +35,10 @@ const dashboardPages = [
         meta: { title: 'Analytics' }
     },
     {
-        path: ROUTES.DASHBOARD.BILLING,
-        name: 'billing',
-        component: () => import('@/Pages/Dashboard/Billings.vue'),
-        meta: { title: 'Billings' }
+        path: ROUTES.DASHBOARD.TRASHBOX,
+        name: 'trashbox',
+        component: () => import('@/Pages/Dashboard/TrashBox.vue'),
+        meta: { title: 'Trashbox' }
     },
     {
         path: ROUTES.DASHBOARD.SETTINGS,

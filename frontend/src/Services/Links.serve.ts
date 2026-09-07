@@ -109,9 +109,20 @@ export async function serveDeleteLink(
     if (!response.success) {
         throw new Error(response.message)
     }
+    
+    return response
+}
 
+export async function serveRestoreLink(id: string): Promise<Response<InterfaceLink>> {
+    const response = await API<InterfaceLink>(`${BACKEND.LINKS}/${id}/restore`, {}, { method: 'PATCH' })
+    if (!response.success) throw new Error(response.message)
     response.data = servePrepareLinks([response.data])[0]
+    return response
+}
 
+export async function servePermanentDeleteLink(id: string): Promise<Response<null>> {
+    const response = await API<null>(`${BACKEND.LINKS}/${id}/permanent`, {}, { method: 'DELETE' })
+    if (!response.success) throw new Error(response.message)
     return response
 }
 

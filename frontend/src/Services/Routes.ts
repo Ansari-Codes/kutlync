@@ -13,7 +13,7 @@ export const ROUTES = {
         HOME: '',
         LINKS: 'links',
         ANALYTICS: 'analytics',
-        BILLING: 'billing',
+        TRASHBOX: 'trashbox',
         SETTINGS: 'settings'
     },
     VISIT: '/s/:slug'

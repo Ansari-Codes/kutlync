@@ -4,7 +4,6 @@ import { ref, watch } from 'vue'
 import KCheckbox from '@/Widgets/Forms/KCheckbox.vue'
 import KInput from '@/Widgets/Forms/KInput.vue'
 import KTextarea from '@/Widgets/Forms/KTextarea.vue'
-import KPanel from '@/Widgets/Layout/KPanel.vue'
 import KButton from '@/Widgets/Actions/KButton.vue'
 
 import type { InterfaceLink, InterfaceLinkInput } from '@/Services/Interfaces'
