@@ -9,10 +9,12 @@ const props = withDefaults(
         rows: Row[]
         columns?: string[]
         slotColumns?: string[]
+        loading?: boolean
     }>(),
     {
         columns: undefined,
-        slotColumns: () => []
+        slotColumns: () => [],
+        loading: false
     }
 )
 
@@ -112,7 +114,11 @@ const hasSlot = (column: string) => {
 
                     </tr>
 
-                    <tr v-if="rows.length === 0">
+                    <tr v-if="loading">
+                        <td :colspan="displayColumns.length || 1" class="k-table__empty">Loading data...</td>
+                    </tr>
+
+                    <tr v-else-if="rows.length === 0">
 
                         <td
                             :colspan="displayColumns.length || 1"

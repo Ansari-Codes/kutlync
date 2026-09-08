@@ -13,10 +13,16 @@ import type { Response } from '@/Services/Interfaces'
 
 
 export function servePrepareLinks(links: InterfaceLink[]): InterfaceLink[] {
+    const normalizeDate = (value: string) => {
+        if (!value) return value
+        if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(value)) return value
+        return `${value.replace(' ', 'T')}Z`
+    }
+
     return links.map(link => ({
         ...link,
-        created_at: `${link.created_at.replace(' ', 'T')}Z`,
-        updated_at: `${link.updated_at.replace(' ', 'T')}Z`,
+        created_at: normalizeDate(link.created_at),
+        updated_at: normalizeDate(link.updated_at),
     }))
 }
 

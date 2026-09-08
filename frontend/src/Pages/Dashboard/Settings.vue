@@ -37,7 +37,7 @@ async function savePassword() {
 
 <template>
     <CompDashPanel title="Settings">
-        <div class="grid w-full max-w-2xl gap-5">
+        <div class="grid w-full max-w-2xl gap-5 pb-4">
             <p v-if="message" class="rounded-lg px-3 py-2 text-sm" style="background: var(--color-success-soft); color: var(--color-success)">{{ message }}</p>
             <p v-if="error" class="rounded-lg px-3 py-2 text-sm" style="background: var(--color-danger); color: white">{{ error }}</p>
 

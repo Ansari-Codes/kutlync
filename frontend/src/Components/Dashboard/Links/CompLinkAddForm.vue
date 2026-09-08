@@ -11,6 +11,7 @@ import type { InterfaceLink, InterfaceLinkInput } from '@/Services/Interfaces'
 const props = withDefaults(defineProps<{
     mode?: 'add' | 'update' | 'edit'
     link?: Partial<InterfaceLink>
+    loading?: boolean
 }>(), {
     mode: 'add'
 })
@@ -153,6 +154,7 @@ function handleNew() {
                     :label="props.mode === 'update' || props.mode === 'edit' ? 'Update Link' : 'Create Link'"
                     :icon="props.mode === 'update' || props.mode === 'edit' ? 'save' : 'add'"
                     type="submit"
+                                    :loading="props.loading"
                 />
             </div>
         </form>

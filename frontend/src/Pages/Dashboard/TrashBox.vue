@@ -35,15 +35,22 @@ const currentFilters = ref<InterfaceLinkFilters>({
 })
 
 function timeLeft(updatedAt: string) {
-	const remaining = new Date(updatedAt).getTime() + 5 * 86400000 - now.value
+	const timestamp = new Date(updatedAt).getTime()
+	if (Number.isNaN(timestamp)) return null
+	const remaining = timestamp + 5 * 86400000 - now.value
 	if (remaining <= 0) return null
 	return `${Math.floor(remaining / 86400000)}d ${Math.floor((remaining % 86400000) / 3600000)}h`
+}
+
+function formatDate(value: string) {
+	const date = new Date(value)
+	return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
 }
 
 const displayLinks = computed(() => links.value
 	.filter(link => link.status === 'deleted' && timeLeft(link.updated_at))
 	.map(link => ({ id: link.id, link_name: link.link_name, target: link.destination_link,
-		slug: link.slug, time_left: timeLeft(link.updated_at), deleted_at: link.updated_at })))
+		slug: link.slug, time_left: timeLeft(link.updated_at), deleted_at: formatDate(link.updated_at) })))
 
 function updateUrl() {
 	const query: Record<string, string> = {}

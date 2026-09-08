@@ -55,6 +55,7 @@ const actionMenuPosition = ref({
 
 const filter_open = ref(false)
 const isLoading = ref(false)
+const isSubmitting = ref(false)
 
 // Initialize filters from URL query params
 const currentFilters = ref<InterfaceLinkFilters>({
@@ -76,7 +77,8 @@ const displayLinks = computed(() => {
         slug: link.slug,
         visits: link.visits,
         age_left: getAgeLeft(link.created_at, link.max_age_minutes),
-        created_at: link.created_at,
+        created_at: formatDate(link.created_at),
+        updated_at: formatDate(link.updated_at),
         status: link.status,
     }))
 })
@@ -87,6 +89,7 @@ function getAgeLeft(created_at: string, max_age_minutes?: number | null): string
     }
 
     const created = new Date(created_at).getTime()
+    if (Number.isNaN(created)) return 'Unknown'
     const expiry = created + max_age_minutes * 60000
     const difference = expiry - now.value
 
@@ -108,6 +111,11 @@ function getAgeLeft(created_at: string, max_age_minutes?: number | null): string
 
     const days = Math.floor(hours / 24)
     return `${days}d ${hours % 24}h`
+}
+
+function formatDate(value: string) {
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
 }
 
 function updateUrlWithFilters() {
@@ -174,6 +182,7 @@ const selectedLink = computed(() =>
 )
 
 async function handleAddEditFormSubmit(data: InterfaceLinkInput) {
+    isSubmitting.value = true
     try {
         let response
         if (add_edit_form_mode.value === 'add') {
@@ -200,6 +209,8 @@ async function handleAddEditFormSubmit(data: InterfaceLinkInput) {
         }
     } catch (e) {
         notify(String(e), 'error')
+    } finally {
+        isSubmitting.value = false
     }
 }
 
@@ -345,7 +356,7 @@ onUnmounted(() => {
 
         <KDialog v-model="add_edit_form_open" mode="elevated"
             :title="add_edit_form_mode === 'edit' ? 'Edit link' : 'Create link'" @close="closeForm">
-            <CompLinkAddForm :mode="add_edit_form_mode" :link="selectedLink" @handle-new="handleAddEditFormSubmit"
+            <CompLinkAddForm :mode="add_edit_form_mode" :link="selectedLink" :loading="isSubmitting" @handle-new="handleAddEditFormSubmit"
                 @close-form="closeForm" />
         </KDialog>
 
@@ -362,6 +373,7 @@ onUnmounted(() => {
             'visits',
             'age_left',
             'created_at',
+            'updated_at',
             'status'
         ]" :slot-columns="[
                 'actions',

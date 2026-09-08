@@ -8,6 +8,7 @@ withDefaults(defineProps<{
     type?: 'button' | 'submit' | 'reset'
     variant?: 'primary' | 'secondary' | 'quiet' | 'danger'
     disabled?: boolean
+    loading?: boolean
 }>(), {
     label: '',
     icon: '',
@@ -15,6 +16,7 @@ withDefaults(defineProps<{
     type: 'button',
     variant: 'primary',
     disabled: false,
+    loading: false,
 })
 </script>
 
@@ -23,10 +25,11 @@ withDefaults(defineProps<{
         class="k-button"
         :class="`k-button--${variant}`"
         :type="type"
-        :disabled="disabled"
+        :disabled="disabled || loading"
     >
+        <KIcon v-if="loading" icon="progress_activity" class="k-button__spinner" />
         <KIcon
-            v-if="icon && iconPosition === 'left'"
+            v-else-if="icon && iconPosition === 'left'"
             :icon="icon"
         />
 

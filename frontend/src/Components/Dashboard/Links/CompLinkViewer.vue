@@ -21,6 +21,10 @@ const fields = [
 function value(key: typeof fields[number]['key']) {
     const result = props.link[key]
     if (key === 'max_age_minutes') return result == null ? 'Never' : `${result} minutes`
+    if (key === 'created_at' || key === 'updated_at') {
+        const date = new Date(String(result))
+        return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+    }
     return String(result ?? 'Not provided')
 }
 </script>
