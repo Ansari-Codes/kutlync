@@ -25,11 +25,6 @@ const sidebar: InterfaceDashboardSidebar[] = [
         target: ROUTES.DASHBOARD.TRASHBOX
     },
     {
-        name: 'Analytics',
-        icon: 'analytics',
-        target: ROUTES.DASHBOARD.ANALYTICS
-    },
-    {
         name: 'Settings',
         icon: 'settings',
         target: ROUTES.DASHBOARD.SETTINGS

@@ -12,7 +12,6 @@ export const ROUTES = {
         BASE: '/dashboard',
         HOME: '',
         LINKS: 'links',
-        ANALYTICS: 'analytics',
         TRASHBOX: 'trashbox',
         SETTINGS: 'settings'
     },
@@ -36,5 +35,6 @@ export const BACKEND = {
         VERIFY: (slug: string) => `/visits/verify?slug=${slug}`,
         SETTINGS: '/dashboard/settings'
     },
-    IS_SECURED: (slug: string) => `/visit/is_secured?slug=${slug}`
+    IS_SECURED: (slug: string) => `/visit/is_secured?slug=${slug}`,
+    ANALYTICS: '/dashboard/analytics'
 } as const

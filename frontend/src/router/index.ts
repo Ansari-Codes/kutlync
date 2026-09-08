@@ -29,12 +29,6 @@ const dashboardPages = [
         meta: { title: 'New Link' }
     },
     {
-        path: ROUTES.DASHBOARD.ANALYTICS,
-        name: 'analytics',
-        component: () => import('@/Pages/Dashboard/Analytics.vue'),
-        meta: { title: 'Analytics' }
-    },
-    {
         path: ROUTES.DASHBOARD.TRASHBOX,
         name: 'trashbox',
         component: () => import('@/Pages/Dashboard/TrashBox.vue'),

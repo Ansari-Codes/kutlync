@@ -95,3 +95,45 @@ export interface InterfaceLinkFilters {
     visits_range?: number | null;
 }
 
+export interface InterfaceAnalyticsLink extends InterfaceLink {
+    expiry_minutes?: number | null
+    deletion_hours?: number
+}
+
+export interface InterfaceAnalytics {
+    range_days: number
+    range_snapshot: Array<{
+        date: string
+        label: string
+        active_links: number
+        expired_links: number
+        deleted_links: number
+        total_links: number
+        visits: number
+        secured_links: number
+    }>
+    totals: {
+        active_links: number
+        expired_links: number
+        deleted_links: number
+        total_links: number
+        total_visits: number
+        active_visits: number
+        expired_visits: number
+        deleted_visits: number
+        secured_links: number
+        secured_visits: number
+    }
+    status_breakdown: Array<{ status: string; links: number; visits: number }>
+    visits_by_status: Array<{ status: string; links: number; visits: number }>
+    visits_per_link: InterfaceAnalyticsLink[]
+    visits_per_active_link: InterfaceAnalyticsLink[]
+    visits_per_expired_link: InterfaceAnalyticsLink[]
+    top_links: InterfaceAnalyticsLink[]
+    secured_links: InterfaceAnalyticsLink[]
+    near_expiry: InterfaceAnalyticsLink[]
+    near_deleted: InterfaceAnalyticsLink[]
+    expired_near_deleted: InterfaceAnalyticsLink[]
+}
+
+
