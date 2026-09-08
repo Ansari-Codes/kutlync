@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class SignupRequest(BaseModel):
@@ -21,9 +21,3 @@ class PasswordUpdateRequest(BaseModel):
     old_password: str
     new_password: str
     confirm_password: str
-
-
-class ApiResponse(BaseModel):
-    success: bool
-    message: str
-    data: object | None = None

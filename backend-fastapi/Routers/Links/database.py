@@ -123,6 +123,7 @@ async def dashboard_stats(user_id: int) -> dict[str, Any]:
 
 
 async def create_link(user_id: int, values: dict[str, Any]) -> dict[str, Any]:
+    values.pop("security_action", None)
     values["user_id"] = user_id
     if values.get("access_code"):
         values["access_code_hash"] = hash_password(values.pop("access_code"))

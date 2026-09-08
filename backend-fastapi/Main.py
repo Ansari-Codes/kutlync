@@ -10,6 +10,7 @@ from Routers.Auth.route import auth_router
 from Routers.Links.route import links_router
 from Routers.Links.database import dashboard_stats as get_dashboard_stats
 from Routers.Auth.middlewares import current_user_id
+from Routers.Analytics.route import analytics_router
 from Utils.common import api_response
 
 DefineTable()
@@ -41,3 +42,4 @@ async def user_dashboard_stats(user_id: int | None = Depends(current_user_id)):
 
 app.include_router(auth_router)
 app.include_router(links_router)
+app.include_router(analytics_router)
