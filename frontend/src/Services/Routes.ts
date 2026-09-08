@@ -1,4 +1,4 @@
-export const BACKEND_BASE_API_URL = 'http://127.0.0.1:3333/api'
+export const BACKEND_BASE_API_URL = (import.meta.env.VITE_BACKEND_BASE ?? 'https://kutlync-deployable.onrender.com') + '/api'
 
 export const ROUTES = {
     HEALTH: '/health',
