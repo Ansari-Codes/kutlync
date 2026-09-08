@@ -45,6 +45,10 @@ jobs:
           VITE_BASE: ${{ vars.BASE }}
           VITE_BACKEND_BASE: ${{ vars.BACKEND_BASE }}
 
+      - name: Configure SPA fallback
+        working-directory: frontend
+        run: cp dist/index.html dist/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
