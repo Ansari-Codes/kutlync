@@ -137,3 +137,9 @@ export interface InterfaceAnalytics {
 }
 
 
+export interface InterfaceStatistics {
+    total_links: number,
+    total_visits: number,
+    total_users: number,
+    total_log_ins: number
+}

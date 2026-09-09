@@ -36,7 +36,6 @@ async def stats(user_id: int | None = Depends(current_user_id)):
     return api_response(True, "Dashboard stats fetched", await dashboard_stats(user_id))
 
 
-@app.get("/api/satatistics")
 @app.get("/api/statistics")
 async def statistics():
     links = await Model_Link.select(columns="visits")

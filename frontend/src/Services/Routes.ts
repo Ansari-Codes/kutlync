@@ -20,7 +20,7 @@ export const ROUTES = {
 
 export const BACKEND = {
     HEALTH: '/health',
-    STATS: '/stats',
+    STATS: '/statistics',
     LINKS: '/dashboard/links',
     AUTH: {
         BASE: '/auth',
